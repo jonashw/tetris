@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title></title>
+	<script src="/universal/javascript/jquery.js"></script>
+	<script src="Shape.js"></script>
+	<script>
+		var board;
+		var ctx;
+		function drawShape(shape){
+			ctx.save();
+			ctx.fillStyle=shape.color;
+			shape.getVertices().forEach(function(item,i){
+				drawTile.apply(null,item);
+			});
+			ctx.restore();
+		}
+		function drawTile(x,y){
+			ctx.fillRect(x*10,y*10,10,10);
+		}
+		var demoShapes = [
+			new Trident	(Shape.colors.red, 		0, 	0),
+			new S		(Shape.colors.orange, 	5, 	0),
+			new Z		(Shape.colors.yellow, 	10, 0),
+			new Rod		(Shape.colors.green, 	15, 0),
+			new L_L		(Shape.colors.blue, 	0, 	5),
+			new L_R		(Shape.colors.teal, 	5, 	5),
+			new Square	(Shape.colors.purple, 	10, 5)
+		];
+		function getRandomShapes(){
+			var positions = [
+				[0,  0],
+				[5,  0],
+				[10, 0],
+				[15, 0],
+				[0,  5],
+				[5,  5],
+				[10, 5]
+			];
+			var genShapes = [];
+			for(var i=0; i < positions.length; i++){
+				var pos = positions[i];
+				var shape = Shape.getRandomShape();
+				shape.x = pos[0];
+				shape.y = pos[1];
+				genShapes.push(shape);
+			}
+			return genShapes;
+		}
+
+		var shapelist = getRandomShapes();
+
+		$(function(){
+			board = $("#board");
+			ctx = board[0].getContext('2d');
+			for(var i in shapelist){
+				drawShape(shapelist[i]);
+			}
+		});
+	</script>
+	<style>
+		body, canvas {
+			background:#333;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="board"></canvas>
+</body>
+</html>
