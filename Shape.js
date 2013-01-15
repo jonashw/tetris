@@ -30,29 +30,53 @@ Shape.getRandomColor = function(){
 	return c[Math.floor(Math.random() * c.length)];
 };
 Shape.getRandomShape = function(){
-	var sh = [Trident,S,Z,Rod,L_L,L_R,Square];
+	var sh = [T,S,Z,I,L,J,O];
 	var n = Math.floor(Math.random() * sh.length);
 	return new sh[n](Shape.getRandomColor());
 }
+Shape.getDemoShapes = function(){
+	return [
+		new T(Shape.colors.red, 	0, 	0),
+		new S(Shape.colors.orange, 	5, 	0),
+		new Z(Shape.colors.yellow, 	10, 0),
+		new I(Shape.colors.green, 	15, 0),
+		new J(Shape.colors.blue, 	20,	0),
+		new L(Shape.colors.teal, 	25,	0),
+		new S(Shape.colors.purple, 	30, 0)
+	];
+};
+Shape.getRandomDemoShapes = function(n){
+	var n = n || 0;
+	if(n <= 0) throw("Shape.getRandomDemoShapes(n): n must be >= 1");
+	var genShapes = [];
+	for(var i=0; i<n; i++){
+		var shape = Shape.getRandomShape();
+		shape.x = (i%7)*5;
+		shape.y = Math.floor(i/7)*5;
+		genShapes.push(shape);
+	}
+	return genShapes;
+};
+
 
 //Subclasses of Shape
-Trident.prototype = new Shape();
-function Trident(color,x,y){ 
+T.prototype = new Shape();
+function T(color,x,y){ 
 	Shape.call(this, [[0,0],[1,0],[2,0],[1,1]], color, x, y);
 }
 
-L_L.prototype = new Shape();
-function L_L(color,x,y){ 
+J.prototype = new Shape();
+function J(color,x,y){ 
 	Shape.call(this, [[0,0],[1,0],[1,1],[1,2]], color, x, y);
 }
 
-L_R.prototype = new Shape();
-function L_R(color,x,y){ 
+L.prototype = new Shape();
+function L(color,x,y){ 
 	Shape.call(this, [[1,0],[0,0],[0,1],[0,2]], color, x, y);
 }
 
-Square.prototype = new Shape();
-function Square(color,x,y){ 
+O.prototype = new Shape();
+function O(color,x,y){ 
 	Shape.call(this, [[0,0],[1,0],[1,1],[0,1]], color, x, y);
 }
 
@@ -66,7 +90,7 @@ function Z(color,x,y){
 	Shape.call(this, [[1,0],[2,0],[1,1],[0,1]], color, x, y);
 }
 
-Rod.prototype = new Shape();
-function Rod(color,x,y){ 
+I.prototype = new Shape();
+function I(color,x,y){ 
 	Shape.call(this, [[0,0],[0,1],[0,2],[0,3]], color, x, y);
 }
