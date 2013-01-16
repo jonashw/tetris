@@ -46,6 +46,10 @@
 			drawPiece();
 			$('body').on('keydown',function(e){
 				switch(e.which){
+					case 32: //spacebar
+						piece.y += 10;
+						controlsPressed(e);
+						break;
 					case 37: //left
 						piece.x--;
 						controlsPressed(e);
@@ -121,6 +125,10 @@
 		<tr>
 			<td><span class="key">Shift</span> + <span class="key">&uarr;</span></td>
 			<td>Rotate piece Counter-clockwise</td>
+		</tr>
+		<tr>
+			<td><span class="key">Space</span></td>
+			<td>Drop piece</td>
 		</tr>
 	</table>
 </body>
