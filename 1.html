@@ -3,22 +3,22 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
-	<script src="Shape.js"></script>
+	<script src="Piece.js"></script>
 	<script>
-		var ctx, shapes;
+		var ctx, pieces;
 		function clear(){
 			var c = ctx.canvas;
 			ctx.clearRect(0,0,c.width,c.height);
 		}
-		function drawShapes(){
-			shapes.forEach(function(shape){
-				drawShape(shape);
+		function drawPieces(){
+			pieces.forEach(function(piece){
+				drawPiece(piece);
 			});
 		}
-		function drawShape(shape){
+		function drawPiece(piece){
 			ctx.save();
-			ctx.fillStyle=shape.color;
-			shape.getVertices().forEach(function(item,i){
+			ctx.fillStyle=piece.color;
+			piece.getVertices().forEach(function(item,i){
 				drawTile.apply(null,item);
 			});
 			ctx.restore();
@@ -41,21 +41,21 @@
 		function rotate(){
 			clear();	
 			if(cw){
-				shapes.forEach(function(shape){
-					shape.rotateCW();
+				pieces.forEach(function(piece){
+					piece.rotateCW();
 				});
 			} else {
-				shapes.forEach(function(shape){
-					shape.rotateCCW();
+				pieces.forEach(function(piece){
+					piece.rotateCCW();
 				});
 			}
-			drawShapes();
+			drawPieces();
 		}
 
 		window.onload = function(){
 			ctx = document.getElementById("canvas").getContext('2d');
-			shapes = Shape.getRandomDemoShapes(49);
-			drawShapes();
+			pieces = Piece.generateDemoPieces(49);
+			drawPieces();
 			setInterval(rotate, 500);
 		};
 	</script>

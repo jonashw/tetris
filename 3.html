@@ -3,16 +3,16 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
-	<script src="Shape.js"></script>
+	<script src="Piece.js"></script>
 	<script src="Board.js"></script>
 	<script>
 		var ctx;
 		var tileSize = 25;
-		var shape;
+		var piece;
 		var updateLoop;
 
 		var board = new Board();
-		board.absorbPiece(new L(Shape.colors.red,2,2));
+		board.absorbPiece(new L(Piece.colors.red,2,2));
 
 		window.onload = function(){
 			ctx = document.getElementById("canvas").getContext('2d');
@@ -27,36 +27,36 @@
 			clearInterval(updateLoop);
 		}
 		function startOver(){
-			shape=null;
+			piece=null;
 			board.initCells();
 			start();
 		}
 		function update(){
-			if(!shape){
-				newshape = Shape.getRandomDemoShapes(1)[0];
-				newshape.x = 6;
-				newshape.y = 20;
-				if(board.canPlacePiece(newshape)){
-					shape = newshape;
+			if(!piece){
+				newpiece = Piece.generateDemoPieces(1)[0];
+				newpiece.x = 6;
+				newpiece.y = 20;
+				if(board.canPlacePiece(newpiece)){
+					piece = newpiece;
 				} else {
 					stop();
-					alert('I see you filled it up.  Let me take care of that...');
+					alert('I see you filled it up.  Let me see what I can do...');
 					startOver();
 				}
 			} else {
-				if(board.pieceCanMoveDown(shape)){
-					shape.y--;
+				if(board.pieceCanMoveDown(piece)){
+					piece.y--;
 				} else {
-					board.absorbPiece(shape);
-					shape = null;
+					board.absorbPiece(piece);
+					piece = null;
 				}
 			}
 			draw();
 		}
 		function draw(){
 			clear();
-			if(shape){
-				drawShape(shape);
+			if(piece){
+				drawPiece(piece);
 			}
 			drawBoard();
 		}
@@ -65,13 +65,13 @@
 			var c = ctx.canvas;
 			ctx.clearRect(0,0,c.width,c.height);
 		}
-		function drawShape(){
+		function drawPiece(){
 			ctx.save();
-			ctx.fillStyle=shape.color;
-			shape.getVertices().forEach(function(v,i){
+			ctx.fillStyle=piece.color;
+			piece.getVertices().forEach(function(v,i){
 				var c = v[0];
 				var r = v[1];
-				var center = (c == shape.x && r == shape.y);
+				var center = (c == piece.x && r == piece.y);
 				drawTile.call(null, c, r, center);
 			});
 			ctx.restore();

@@ -1,30 +1,30 @@
-function Shape(orientations,color,x,y){
+function Piece(orientations,color,x,y){
 	this.o = orientations;
 	this.oi = 0;
 	this.color = color;
 	this.x = x;//optional
 	this.y = y;//optional
 }
-Shape.prototype.getVertices = function(){
-	//The API for a Shape is its vertices, its x & y position, and its color.
+Piece.prototype.getVertices = function(){
+	//The API for a Piece is its vertices, its x & y position, and its color.
 	//The vertices are exposed as an array of points.  Each point is a 2-membered array: [x,y].
 	var self = this;
 	return this.o[this.oi].map(function(item,i){
 		return [item[0] + self.x, item[1] + self.y];
 	});
 };
-Shape.prototype.rotateCCW = function(){
+Piece.prototype.rotateCCW = function(){
 	this.oi++;
 	if(this.oi >= this.o.length) this.oi = 0;
 	return this;
 }
-Shape.prototype.rotateCW = function(){
+Piece.prototype.rotateCW = function(){
 	this.oi--;
 	if(this.oi < 0) this.oi = this.o.length-1;
 	return this;
 }
-//Shape has some statics
-Shape.colors = {
+//Piece has some statics
+Piece.colors = {
 	red:"#ff0000",
 	orange:"#eedd00",
 	yellow:"#f3f300",
@@ -33,45 +33,45 @@ Shape.colors = {
 	teal:"#00f3f3",
 	purple:"#ee00ee"
 };
-Shape.getRandomColor = function(){
+Piece.getRandomColor = function(){
 	var c = [];
-	for(var k in Shape.colors){
-		c.push(Shape.colors[k]);
+	for(var k in Piece.colors){
+		c.push(Piece.colors[k]);
 	}
 	return c[Math.floor(Math.random() * c.length)];
 };
-Shape.getRandomShape = function(t){
+Piece.getRandomPiece = function(t){
 	var sh = [T,S,Z,I,L,J,O];
 	var t = t || sh[Math.floor(Math.random() * sh.length)];
-	return new t(Shape.getRandomColor());
+	return new t(Piece.getRandomColor());
 }
-Shape.getDemoShapes = function(){
+Piece.getDemoPieces = function(){
 	return [
-		new T(Shape.colors.red, 	0, 	0),
-		new S(Shape.colors.orange, 	5, 	0),
-		new Z(Shape.colors.yellow, 	10, 0),
-		new I(Shape.colors.green, 	15, 0),
-		new J(Shape.colors.blue, 	20,	0),
-		new L(Shape.colors.teal, 	25,	0),
-		new S(Shape.colors.purple, 	30, 0)
+		new T(Piece.colors.red, 	0, 	0),
+		new S(Piece.colors.orange, 	5, 	0),
+		new Z(Piece.colors.yellow, 	10, 0),
+		new I(Piece.colors.green, 	15, 0),
+		new J(Piece.colors.blue, 	20,	0),
+		new L(Piece.colors.teal, 	25,	0),
+		new S(Piece.colors.purple, 	30, 0)
 	];
 };
-Shape.getRandomDemoShapes = function(n,t){
+Piece.generateDemoPieces = function(n,t){
 	var n = n || 0;
-	if(n <= 0) throw("Shape.getRandomDemoShapes(n): n must be >= 1");
-	var genShapes = [];
+	if(n <= 0) throw("Piece.getRandomDemoPieces(n): n must be >= 1");
+	var genPieces = [];
 	for(var i=0; i<n; i++){
-		var shape = Shape.getRandomShape(t);
-		shape.x = (i%7)*5;
-		shape.y = Math.floor(i/7)*5;
-		genShapes.push(shape);
+		var piece = Piece.getRandomPiece(t);
+		piece.x = (i%7)*5;
+		piece.y = Math.floor(i/7)*5;
+		genPieces.push(piece);
 	}
-	return genShapes;
+	return genPieces;
 };
 
 
-//Subclasses of Shape
-T.prototype = new Shape();
+//Subclasses of Piece
+T.prototype = new Piece();
 function T(color,x,y){ 
 	var o = [
 		[[0,-1],[0,0],[-1,0],[1,0]],
@@ -79,11 +79,11 @@ function T(color,x,y){
 		[[0,1],[0,0],[1,0],[-1,0]],
 		[[-1,0],[0,0],[0,1],[0,-1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 	this.rvi = 1;
 }
 
-J.prototype = new Shape();
+J.prototype = new Piece();
 function J(color,x,y){ 
 	var o = [
 		[[-1,0],[0,0],[1,0],[1,-1]],
@@ -91,11 +91,11 @@ function J(color,x,y){
 		[[1,0],[0,0],[-1,0],[-1,1]],
 		[[0,1],[0,0],[0,-1],[-1,-1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 	this.rvi = 2;
 }
 
-L.prototype = new Shape();
+L.prototype = new Piece();
 function L(color,x,y){ 
 	var o = [
 		[[1,0],[0,0],[-1,0],[-1,-1]],
@@ -103,41 +103,41 @@ function L(color,x,y){
 		[[-1,0],[0,0],[1,0],[1,1]],
 		[[0,-1],[0,0],[0,1],[-1,1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 	this.rvi = 2;
 }
 
-O.prototype = new Shape();
+O.prototype = new Piece();
 function O(color,x,y){ 
 	var o = [
 		[[0,0],[-1,0],[-1,-1],[0,-1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 }
 
-S.prototype = new Shape();
+S.prototype = new Piece();
 function S(color,x,y){ 
 	var o = [
 		[[1,0],[0,0],[0,-1],[-1,-1]],
 		[[0,1],[0,0],[1,0],[1,-1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 }
 
-Z.prototype = new Shape();
+Z.prototype = new Piece();
 function Z(color,x,y){ 
 	var o = [
 		[[-1,0],[0,0],[0,-1],[1,-1]],
 		[[0,-1],[0,0],[1,0],[1,1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 }
 
-I.prototype = new Shape();
+I.prototype = new Piece();
 function I(color,x,y){ 
 	var o = [
 		[[-2,0],[-1,0],[0,0],[1,0]],
 		[[0,-2],[0,-1],[0,0],[0,1]]
 	];
-	Shape.call(this, o, color, x, y);
+	Piece.call(this, o, color, x, y);
 }

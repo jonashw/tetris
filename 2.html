@@ -3,19 +3,19 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
-	<script src="Shape.js"></script>
+	<script src="Piece.js"></script>
 	<script src="/universal/javascript/jQuery.js"></script>
 	<script>
 		var ctx;
-		var shape = new T(Shape.colors.red,6,1);
+		var piece = new T(Piece.colors.red,6,1);
 		function clear(){
 			var c = ctx.canvas;
 			ctx.clearRect(0,0,c.width,c.height);
 		}
-		function drawShape(){
+		function drawPiece(){
 			ctx.save();
-			ctx.fillStyle=shape.color;
-			shape.getVertices().forEach(function(item,i){
+			ctx.fillStyle=piece.color;
+			piece.getVertices().forEach(function(item,i){
 				drawTile.apply(null,item);
 			});
 			ctx.restore();
@@ -23,7 +23,7 @@
 
 		function refresh(){
 			clear();
-			drawShape();
+			drawPiece();
 		}
 
 		function drawTile(x,y){
@@ -43,27 +43,27 @@
 
 		window.onload = function(){
 			ctx = document.getElementById("canvas").getContext('2d');
-			drawShape();
+			drawPiece();
 			$('body').on('keydown',function(e){
 				switch(e.which){
 					case 37: //left
-						shape.x--;
+						piece.x--;
 						controlsPressed(e);
 						break;
 					case 38: //up
 						if(e.shiftKey || e.altKey || e.ctrlKey){
-							shape.rotateCW();
+							piece.rotateCW();
 						} else {
-							shape.rotateCCW();
+							piece.rotateCCW();
 						}
 						controlsPressed(e);
 						break;
 					case 39: //right
-						shape.x++;
+						piece.x++;
 						controlsPressed(e);
 						break;
 					case 40: //down
-						shape.y++;
+						piece.y++;
 						controlsPressed(e);
 						break;
 				}
