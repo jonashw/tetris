@@ -1,0 +1,129 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tetris Dev</title>
+	<script src="Shape.js"></script>
+	<script src="Board.js"></script>
+	<script>
+		var ctx;
+		var tileSize = 25;
+		var shape;
+		var updateLoop;
+
+		var board = new Board();
+		board.absorbPiece(new L(Shape.colors.red,2,2));
+
+		window.onload = function(){
+			ctx = document.getElementById("canvas").getContext('2d');
+			start();
+		};
+		function start(){
+			updateLoop = setInterval(function(){
+				update();
+			},50)
+		}
+		function stop(){
+			clearInterval(updateLoop);
+		}
+		function startOver(){
+			shape=null;
+			board.initCells();
+			start();
+		}
+		function update(){
+			if(!shape){
+				newshape = Shape.getRandomDemoShapes(1)[0];
+				newshape.x = 6;
+				newshape.y = 20;
+				if(board.canPlacePiece(newshape)){
+					shape = newshape;
+				} else {
+					stop();
+					alert('I see you filled it up.  Let me take care of that...');
+					startOver();
+				}
+			} else {
+				if(board.pieceCanMoveDown(shape)){
+					shape.y--;
+				} else {
+					board.absorbPiece(shape);
+					shape = null;
+				}
+			}
+			draw();
+		}
+		function draw(){
+			clear();
+			if(shape){
+				drawShape(shape);
+			}
+			drawBoard();
+		}
+
+		function clear(){
+			var c = ctx.canvas;
+			ctx.clearRect(0,0,c.width,c.height);
+		}
+		function drawShape(){
+			ctx.save();
+			ctx.fillStyle=shape.color;
+			shape.getVertices().forEach(function(v,i){
+				var c = v[0];
+				var r = v[1];
+				var center = (c == shape.x && r == shape.y);
+				drawTile.call(null, c, r, center);
+			});
+			ctx.restore();
+		}
+
+		function drawBoard(){
+			var RC = board.rowCount;
+			for(var r=1; r<=RC; r++){
+				for(var c=1; c<=board.columnCount; c++){
+					var color = board.getAt(c,r);
+					if(color){
+						ctx.save();
+						ctx.fillStyle = color;
+						drawTile(c,r)
+						ctx.restore();
+					} else {
+						outlineTile(c,r);
+					}
+				}
+			}
+		}
+
+		function drawTile(c,r,special){
+			if(special){
+				ctx.save();
+				ctx.fillStyle="#ffffff";
+			}
+			ctx.fillRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
+			outlineTile(c,r);
+			if(special){
+				ctx.restore();
+			}
+		}
+
+		function outlineTile(c,r){
+			ctx.save();
+			ctx.fillStyle="#000000";
+			ctx.strokeRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
+			ctx.restore();
+		}
+	</script>
+	<style>
+		body, canvas {
+			background:#333;
+		}
+		canvas {
+			width:700px;
+			height:700px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="700" height="700"></canvas>
+</body>
+</html>

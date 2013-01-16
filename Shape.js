@@ -16,10 +16,12 @@ Shape.prototype.getVertices = function(){
 Shape.prototype.rotateCCW = function(){
 	this.oi++;
 	if(this.oi >= this.o.length) this.oi = 0;
+	return this;
 }
 Shape.prototype.rotateCW = function(){
 	this.oi--;
 	if(this.oi < 0) this.oi = this.o.length-1;
+	return this;
 }
 //Shape has some statics
 Shape.colors = {
