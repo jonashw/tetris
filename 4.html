@@ -12,7 +12,6 @@
 		var updateLoop;
 
 		var board = new Board();
-		board.absorbPiece(new L(Piece.colors.red,2,2));
 
 		window.onload = function(){
 			ctx = document.getElementById("canvas").getContext('2d');
@@ -31,23 +30,78 @@
 			board.initRows();
 			start();
 		}
+		var setup = false;
+		var newPieceCount = 0;
 		function update(){
 			if(!piece){
-				newpiece = Piece.generateDemoPieces(1)[0];
-				newpiece.x = 6;
-				newpiece.y = 20;
+				if(!setup){
+					//bottom-most red I
+					for(var i=1; i<board.columnCount; i++){
+						var newpiece = new I(Piece.colors.red,i+1,3);
+						newpiece.rotateCCW();
+						board.absorbPiece(newpiece);
+					}
+					//second layer: yellow O
+					for(var i=0; i<board.columnCount/2 - 1; i++){
+						newpiece = new O(Piece.colors.yellow,3+(i*2),6);
+						board.absorbPiece(newpiece);
+					}
+					//adaptor blue L
+					var newpiece = new L(Piece.colors.blue,10,6);
+					newpiece.rotateCW();
+					board.absorbPiece(newpiece);
+					//alternating Z/S for third row
+					for(var i=0; i<board.columnCount/2 - 1; i++){
+						var fn = (i%2)==0 ? S : Z;
+						var col = (i%2)==0 ? Piece.colors.green : Piece.colors.teal;
+						newpiece = new fn(col,2+(i*2),8);
+						newpiece.rotateCW();
+						board.absorbPiece(newpiece);
+					}
+					//fill-in with some purple O on row 4
+					for(var i=0; i<2; i++){
+						newpiece = new O(Piece.colors.purple,4+(i*4),10);
+						board.absorbPiece(newpiece);
+					}
+					//adaptor orange J
+					var newpiece = new J(Piece.colors.orange,6,11);
+					newpiece.rotateCW();
+					board.absorbPiece(newpiece);
+					//adaptor purple J
+					var newpiece = new J(Piece.colors.purple,5,12);
+					newpiece.rotateCCW();
+					board.absorbPiece(newpiece);
+					//adaptor blue J
+					var newpiece = new J(Piece.colors.blue,8,11);
+					board.absorbPiece(newpiece);
+					//adaptor blue L
+					var newpiece = new L(Piece.colors.blue,3,11);
+					board.absorbPiece(newpiece);
+					setup = true;
+				}
+				//place pieces on far left and far right, alternating
+				newpiece = Piece.generateDemoPieces(1,I)[0];
+				newpiece.x = newPieceCount % 2 == 0 ? 1 : 10;
+				newpiece.y = 19;
+				newpiece.rotateCCW();
 				if(board.canPlacePiece(newpiece)){
 					piece = newpiece;
+					newPieceCount++;
 				} else {
 					stop();
 					alert('I see you filled it up.  Let me see what I can do...');
+					setup = false;
 					startOver();
 				}
 			} else {
 				if(board.pieceCanMoveDown(piece)){
 					piece.y--;
 				} else {
-					board.absorbPiece(piece);
+					if(board.absorbPiece(piece)){
+						stop();	
+						//alert('Apparently we\'ve got some full rows on the board.  Gonna clear those out for yeh...');
+						start();
+					}
 					piece = null;
 				}
 			}
