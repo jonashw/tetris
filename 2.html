@@ -1,0 +1,127 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tetris Dev</title>
+	<script src="Shape.js"></script>
+	<script src="/universal/javascript/jQuery.js"></script>
+	<script>
+		var ctx;
+		var shape = new T(Shape.colors.red,5,5);
+		function clear(){
+			var c = ctx.canvas;
+			ctx.clearRect(0,0,c.width,c.height);
+		}
+		function drawShape(){
+			ctx.save();
+			ctx.fillStyle=shape.color;
+			shape.getVertices().forEach(function(item,i){
+				drawTile.apply(null,item);
+			});
+			ctx.restore();
+		}
+
+		function refresh(){
+			clear();
+			drawShape();
+		}
+
+		function drawTile(x,y){
+			x += 2;
+			y += 2;
+			ctx.fillRect(x*10,y*10,10,10);
+			ctx.save();
+			ctx.fillStyle="#000000";
+			ctx.strokeRect(x*10,y*10,10,10);
+			ctx.restore();
+		}
+
+		function controlsPressed(e){
+			e.preventDefault();
+			refresh();
+		}
+
+		window.onload = function(){
+			ctx = document.getElementById("canvas").getContext('2d');
+			drawShape();
+			$('body').on('keydown',function(e){
+				switch(e.which){
+					case 37: //left
+						shape.x--;
+						controlsPressed(e);
+						break;
+					case 38: //up
+						if(e.shiftKey || e.altKey || e.ctrlKey){
+							shape.rotateCW();
+						} else {
+							shape.rotateCCW();
+						}
+						controlsPressed(e);
+						break;
+					case 39: //right
+						shape.x++;
+						controlsPressed(e);
+						break;
+					case 40: //down
+						shape.y++;
+						controlsPressed(e);
+						break;
+				}
+			});
+		};
+	</script>
+	<style>
+		body, canvas {
+			background:#333;
+		}
+		canvas {
+			width:700px;
+			height:700px;
+		}
+		#instructions {
+			float:right;
+			color:white;
+			font-size:150%;
+		}
+		.key {
+			border:1px solid #ccc;
+			border-radius:4px;
+			padding:0.5em;
+			margin:1em 0.25em;
+			font-size:50%;
+			box-shadow: 2px 2px black;
+		}
+		td {
+			padding-left:1em;
+		}
+		td:first-child {
+			text-align:center;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="700" height="700"></canvas>
+	<table cellspacing="0" cellpadding="0" id="instructions">
+		<tr>
+			<td><span class="key">&larr;</span></td>
+			<td>Move piece left</td>
+		</tr>
+		<tr>
+			<td><span class="key">&rarr;</span></td>
+			<td>Move piece right</td>
+		</tr>
+		<tr>
+			<td><span class="key">&darr;</span></td>
+			<td>Move piece down</td>
+		</tr>
+		<tr>
+			<td><span class="key">&uarr;</span></td>
+			<td>Rotate piece Clockwise</td>
+		</tr>
+		<tr>
+			<td><span class="key">Shift</span> + <span class="key">&uarr;</span></td>
+			<td>Rotate piece Counter-clockwise</td>
+		</tr>
+	</table>
+</body>
+</html>
