@@ -24,10 +24,20 @@ ActivePiece.prototype.canMoveDown = function(){
 	});
 };
 ActivePiece.prototype.canRotateCW = function(){
-	return !!this.piece;
+	var board = this.board;
+	var verts = this.piece.getNextCWVertices();
+	console.log(verts);
+	return !!this.piece && verts.every(function(vert){
+		return board.hasEmptyCellAt(vert[0],vert[1]);
+	});
 };
 ActivePiece.prototype.canRotateCCW = function(){
-	return !!this.piece;
+	var board = this.board;
+	var verts = this.piece.getNextCCWVertices();
+	console.log(verts);
+	return !!this.piece && verts.every(function(vert){
+		return board.hasEmptyCellAt(vert[0],vert[1]);
+	});
 };
 ActivePiece.prototype.moveLeft = function(){
 	if(!this.canMoveLeft()) return false;

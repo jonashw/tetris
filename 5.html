@@ -13,7 +13,7 @@
 		var piece;
 		var updateLoop;
 		var drawLoop;
-		var updateDelay = 200;
+		var updateDelay = 1000;
 		var drawDelay = 20;
 
 		var board = new Board();
@@ -69,18 +69,18 @@
 			clearInterval(updateLoop);
 		}
 		function startOver(){
-			piece=null;
+			activePiece.piece=null;
 			board.initRows();
 			startUpdateLoop();
 		}
 		function update(){
 			if(!activePiece.piece){
-				//place pieces on far left and far right, alternating
-				newpiece = Piece.generateDemoPieces(1)[0];
+				newpiece = Piece.generateDemoPieces(1,L)[0];
 				newpiece.x = 6;
 				newpiece.y = 20;
 				if(board.canPlacePiece(newpiece)){
 					activePiece.piece = newpiece;
+					stopUpdateLoop();
 				} else {
 					stopUpdateLoop();
 					alert('I see you filled it up.  Let me see what I can do...');
@@ -90,11 +90,7 @@
 				if(activePiece.canMoveDown()){
 					activePiece.moveDown();
 				} else {
-					if(board.absorbPiece(activePiece.piece)){
-						stop();	
-						//alert('Apparently we\'ve got some full rows on the board.  Gonna clear those out for yeh...');
-						start();
-					}
+					board.absorbPiece(activePiece.piece);
 					activePiece.piece = null;
 				}
 			}

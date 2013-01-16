@@ -5,24 +5,44 @@ function Piece(orientations,color,x,y){
 	this.x = x;//optional
 	this.y = y;//optional
 }
-Piece.prototype.getVertices = function(){
+Piece.prototype.getVertices = function(oi){
 	//The API for a Piece is its vertices, its x & y position, and its color.
 	//The vertices are exposed as an array of points.  Each point is a 2-membered array: [x,y].
+	var oi = oi || this.oi;
+	if(oi < 0 || oi >= this.o.length) throw("Piece.getVertices(oi): oi outside range of 0 -> " + this.o.length + ".  (" + oi + ")");
 	var self = this;
-	return this.o[this.oi].map(function(item,i){
+	return this.o[oi].map(function(item,i){
 		return [item[0] + self.x, item[1] + self.y];
 	});
 };
+Piece.prototype.getOtherVertices = function(oi){
+	console.log(oi);
+	return this.getVertices(oi);
+};
 Piece.prototype.rotateCCW = function(){
-	this.oi++;
-	if(this.oi >= this.o.length) this.oi = 0;
+	this.oi = this.getNextCCWOrientationIndex();
 	return this;
 }
 Piece.prototype.rotateCW = function(){
-	this.oi--;
-	if(this.oi < 0) this.oi = this.o.length-1;
+	this.oi = this.getNextCWOrientationIndex();
 	return this;
 }
+Piece.prototype.getNextCWVertices = function(){ //for previewing the would-be state after a CW rotation
+	var oi = this.getNextCWOrientationIndex();
+	return this.getOtherVertices(oi);
+};
+Piece.prototype.getNextCCWVertices = function(){ //for previewing the would-be state after a CCW rotation
+	var oi = this.getNextCCWOrientationIndex();
+	return this.getOtherVertices(oi);
+};
+Piece.prototype.getNextCWOrientationIndex = function(){
+	var dec = this.oi - 1;
+	return (dec >= 0) ? dec : this.o.length-1;
+};
+Piece.prototype.getNextCCWOrientationIndex = function(){
+	var inc = this.oi + 1;
+	return (inc < this.o.length) ? inc : 0;
+};
 //Piece has some statics
 Piece.colors = {
 	red:"#ff0000",
@@ -47,18 +67,18 @@ Piece.getRandomPiece = function(t){
 }
 Piece.getDemoPieces = function(){
 	return [
-		new T(Piece.colors.red, 	0, 	0),
-		new S(Piece.colors.orange, 	5, 	0),
-		new Z(Piece.colors.yellow, 	10, 0),
-		new I(Piece.colors.green, 	15, 0),
-		new J(Piece.colors.blue, 	20,	0),
-		new L(Piece.colors.teal, 	25,	0),
-		new S(Piece.colors.purple, 	30, 0)
+		new T(Piece.colors.red, 	1, 	1),
+		new S(Piece.colors.orange, 	5, 	1),
+		new Z(Piece.colors.yellow, 	10, 1),
+		new I(Piece.colors.green, 	15, 1),
+		new J(Piece.colors.blue, 	20,	1),
+		new L(Piece.colors.teal, 	25,	1),
+		new S(Piece.colors.purple, 	30, 1)
 	];
 };
 Piece.generateDemoPieces = function(n,t){
 	var n = n || 0;
-	if(n <= 0) throw("Piece.getRandomDemoPieces(n): n must be >= 1");
+	if(n <= 0) throw("Piece.getDemoPieces(n): n must be >= 1");
 	var genPieces = [];
 	for(var i=0; i<n; i++){
 		var piece = Piece.getRandomPiece(t);

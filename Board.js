@@ -97,9 +97,8 @@ Board.prototype.pieceCanMoveDown = function(piece){
 Board.prototype.canPlacePiece = function(piece){
 	var can = true;
 	var self = this;
-	var v = piece.getVertices().forEach(function(vs){
-		if(self.getAt(vs[0],vs[1])) can = false;
-		return;
+	var v = piece.getVertices().every(function(vert){
+		return self.hasEmptyCellAt(vert[0], vert[1]);
 	});
 	return can;
 };
