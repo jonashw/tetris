@@ -1,0 +1,55 @@
+function ActivePiece(board,piece){
+	this.board = board;
+	this.piece = piece;//optional
+}
+ActivePiece.prototype.canDrop = function(){
+	return !!this.piece;
+};
+ActivePiece.prototype.canMoveLeft = function(){
+	var board = this.board;
+	return !!this.piece && this.piece.getVertices().every(function(vert){
+		return board.hasEmptyCellAt(vert[0]-1,vert[1]);
+	});
+};
+ActivePiece.prototype.canMoveRight = function(){
+	var board = this.board;
+	return !!this.piece && this.piece.getVertices().every(function(vert){
+		return board.hasEmptyCellAt(vert[0]+1,vert[1]);
+	});
+};
+ActivePiece.prototype.canMoveDown = function(){
+	var board = this.board;
+	return !!this.piece && this.piece.getVertices().every(function(vert){
+		return board.hasEmptyCellAt(vert[0],vert[1]-1);
+	});
+};
+ActivePiece.prototype.canRotateCW = function(){
+	return !!this.piece;
+};
+ActivePiece.prototype.canRotateCCW = function(){
+	return !!this.piece;
+};
+ActivePiece.prototype.moveLeft = function(){
+	if(!this.canMoveLeft()) return false;
+	this.piece.x--;
+};
+ActivePiece.prototype.moveRight = function(){
+	if(!this.canMoveRight()) return false;
+	this.piece.x++;
+};
+ActivePiece.prototype.drop = function(){
+	if(!this.canDrop()) return false;
+	this.piece.y -= 10;
+};
+ActivePiece.prototype.moveDown = function(){
+	if(!this.canMoveDown()) return false;
+	this.piece.y--;
+};
+ActivePiece.prototype.rotateCW = function(){
+	if(!this.canRotateCW()) return false;
+	this.piece.rotateCW();
+};
+ActivePiece.prototype.rotateCCW = function(){
+	if(!this.canRotateCCW()) return false;
+	this.piece.rotateCCW();
+};

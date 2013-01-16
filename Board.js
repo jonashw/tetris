@@ -17,14 +17,29 @@ Board.prototype.initRow = function(r){
 	}
 };
 Board.prototype.getAt = function(c,r){
-	if(r > this.rowCount || r <= 0) throw("Board.getAt(c,r): Illegal r value! r must be > 0 && <= " + this.rowCount);
-	if(c > this.columnCount || c <= 0) throw("Board.getAt(c,r): Illegal c value! c must be > 0 && <= " + this.columnCount);
+	this.requireCellCoordsInBounds(c,r);
 	return this.rows[r-1][c-1];	
 };
 Board.prototype.setAt = function(c,r,value){
-	if(r > this.rowCount || r <= 0) throw("Board.setAt(c,r,value): Illegal r value! r must be > 0 && <= " + this.rowCount);
-	if(c > this.columnCount || c <= 0) throw("Board.setAt(c,r,value): Illegal c value! c must be > 0 && <= " + this.columnCount);
+	//used by absorbPiece(), below
+	this.requireCellCoordsInBounds(c,r);
 	this.rows[r-1][c-1] = value;	
+};
+Board.prototype.hasEmptyCellAt = function(c,r){
+	//used by canmove queries
+	return this.hasCellAt(c,r) && this.getAt(c,r) == null;
+};
+Board.prototype.hasCellAt = function(c,r){
+	return c > 0 && c <= this.columnCount && r > 0 && r <= this.rowCount;	
+};
+Board.prototype.requireCellCoordsInBounds = function(c,r){
+	if(!this.hasCellAt(c,r)){
+		throw(
+			"Board.getAt(c,r): Out of bounds!" 
+			+ "  Requirements: 0 < r <= " + this.rowCount + ", 0 < c <= " + this.columnCount + "."
+			+ "  Actual values (c,r): (" + c + "," + r + ")"
+		);
+	}
 };
 Board.prototype.absorbPiece = function(piece){
 	var self = this;

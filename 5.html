@@ -1,0 +1,175 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Tetris Dev</title>
+	<script src="/core/jQuery.js"></script>
+	<script src="Piece.js"></script>
+	<script src="ActivePiece.js"></script>
+	<script src="Board.js"></script>
+	<script>
+		var ctx;
+		var tileSize = 25;
+		var piece;
+		var updateLoop;
+		var drawLoop;
+		var updateDelay = 200;
+		var drawDelay = 20;
+
+		var board = new Board();
+		var activePiece = new ActivePiece(board);
+
+		window.onload = function(){
+			ctx = document.getElementById("canvas").getContext('2d');
+			startUpdateLoop();
+			startDrawLoop();
+			$('body').on('keydown',function(e){
+				switch(e.which){
+					case 32: //spacebar
+						activePiece.drop();
+						e.preventDefault();
+						break;
+					case 37: //left
+						activePiece.moveLeft();
+						e.preventDefault();
+						break;
+					case 38: //up
+						if(e.shiftKey || e.altKey || e.ctrlKey){
+							activePiece.rotateCW();
+						} else {
+							activePiece.rotateCCW();
+						}
+						e.preventDefault();
+						break;
+					case 39: //right
+						activePiece.moveRight();
+						e.preventDefault();
+						break;
+					case 40: //down
+						activePiece.moveDown();
+						e.preventDefault();
+						break;
+				}
+			});
+		};
+		function startUpdateLoop(){
+			updateLoop = setInterval(function(){
+				update();
+			},updateDelay)
+		}
+		function stopUpdateLoop(){
+			clearInterval(updateLoop);
+		}
+		function startDrawLoop(){
+			drawLoop = setInterval(function(){
+				draw();
+			},drawDelay)
+		}
+		function stopDrawLoop(){
+			clearInterval(updateLoop);
+		}
+		function startOver(){
+			piece=null;
+			board.initRows();
+			startUpdateLoop();
+		}
+		function update(){
+			if(!activePiece.piece){
+				//place pieces on far left and far right, alternating
+				newpiece = Piece.generateDemoPieces(1)[0];
+				newpiece.x = 6;
+				newpiece.y = 20;
+				if(board.canPlacePiece(newpiece)){
+					activePiece.piece = newpiece;
+				} else {
+					stopUpdateLoop();
+					alert('I see you filled it up.  Let me see what I can do...');
+					startOver();
+				}
+			} else {
+				if(activePiece.canMoveDown()){
+					activePiece.moveDown();
+				} else {
+					if(board.absorbPiece(activePiece.piece)){
+						stop();	
+						//alert('Apparently we\'ve got some full rows on the board.  Gonna clear those out for yeh...');
+						start();
+					}
+					activePiece.piece = null;
+				}
+			}
+		}
+		function draw(){
+			clear();
+			if(activePiece.piece){
+				drawPiece(activePiece.piece);
+			}
+			drawBoard();
+		}
+
+		function clear(){
+			var c = ctx.canvas;
+			ctx.clearRect(0,0,c.width,c.height);
+		}
+		function drawPiece(piece){
+			ctx.save();
+			ctx.fillStyle=piece.color;
+			piece.getVertices().forEach(function(v,i){
+				var c = v[0];
+				var r = v[1];
+				var center = (c == piece.x && r == piece.y);
+				drawTile.call(null, c, r, center);
+			});
+			ctx.restore();
+		}
+
+		function drawBoard(){
+			var RC = board.rowCount;
+			for(var r=1; r<=RC; r++){
+				for(var c=1; c<=board.columnCount; c++){
+					var color = board.getAt(c,r);
+					if(color){
+						ctx.save();
+						ctx.fillStyle = color;
+						drawTile(c,r)
+						ctx.restore();
+					} else {
+						outlineTile(c,r);
+					}
+				}
+			}
+		}
+
+		function drawTile(c,r,special){
+			if(special){
+				ctx.save();
+				ctx.fillStyle="#ffffff";
+			}
+			ctx.fillRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
+			outlineTile(c,r);
+			if(special){
+				ctx.restore();
+			}
+		}
+
+		function outlineTile(c,r){
+			ctx.save();
+			ctx.fillStyle="#999999";
+			ctx.strokeRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
+			ctx.restore();
+		}
+	</script>
+	<style>
+		body, canvas {
+			background:#333;
+		}
+		canvas {
+			width:700px;
+			height:700px;
+		}
+	</style>
+</head>
+<body>
+	<canvas id="canvas" width="700" height="700"></canvas>
+</body>
+</html>

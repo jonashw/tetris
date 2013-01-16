@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
 	<script src="Piece.js"></script>
-	<script src="/universal/javascript/jQuery.js"></script>
+	<script src="/core/jQuery.js"></script>
 	<script>
 		var ctx;
 		var piece = new T(Piece.colors.red,6,1);
@@ -47,7 +47,7 @@
 			$('body').on('keydown',function(e){
 				switch(e.which){
 					case 32: //spacebar
-						piece.y += 10;
+						piece.y += 5;
 						controlsPressed(e);
 						break;
 					case 37: //left
