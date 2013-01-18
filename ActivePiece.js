@@ -49,7 +49,13 @@ ActivePiece.prototype.moveRight = function(){
 };
 ActivePiece.prototype.drop = function(){
 	if(!this.canDrop()) return false;
-	this.piece.y -= 10;
+	var verts = this.piece.getVertices();
+	var board = this.board;
+	var i = 0;
+	while(verts.every(function(vert){return board.hasEmptyCellAt(vert[0], vert[1] + i-1);})){
+		i--;
+	}
+	this.piece.y += i;
 };
 ActivePiece.prototype.moveDown = function(){
 	if(!this.canMoveDown()) return false;
