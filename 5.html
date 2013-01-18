@@ -4,6 +4,7 @@
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
 	<script src="/core/jQuery.js"></script>
+	<script src="Observable.js"></script>
 	<script src="Piece.js"></script>
 	<script src="ActivePiece.js"></script>
 	<script src="Board.js"></script>
@@ -13,13 +14,25 @@
 		var piece;
 		var updateLoop;
 		var drawLoop;
-		var updateDelay = 1000;
+		var updateDelay = 400;
 		var drawDelay = 20;
+		var updateRuns=false;
+
 
 		var board = new Board();
 		var activePiece = new ActivePiece(board);
+		var rowsClearedDisplay;
+		board.on('clear',function(n){
+			console.log('You cleared ' + n + ' row' + (n>1 ? 's' : '') + '!' + (n==4 ? ' Tetris!' : ''));
+			var total = board.totalRowsCleared;
+			rowsClearedDisplay.innerHTML = total;
+			if(total % 2 == 0) updateDelay *= 0.9;
+		});
+
 
 		window.onload = function(){
+			rowsClearedDisplay = document.getElementById("rowsCleared");
+			rowsClearedDisplay.innerHTML = board.totalRowsCleared;
 			ctx = document.getElementById("canvas").getContext('2d');
 			startUpdateLoop();
 			startDrawLoop();
@@ -53,12 +66,12 @@
 			});
 		};
 		function startUpdateLoop(){
-			updateLoop = setInterval(function(){
-				update();
-			},updateDelay)
+			updateLoopRuns=true;
+			update();
 		}
 		function stopUpdateLoop(){
-			clearInterval(updateLoop);
+			updateLoopRuns=false;
+			clearTimeout(updateLoop);
 		}
 		function startDrawLoop(){
 			drawLoop = setInterval(function(){
@@ -81,6 +94,7 @@
 				if(board.canPlacePiece(newpiece)){
 					activePiece.piece = newpiece;
 					stopUpdateLoop();
+					//stopUpdateLoop();
 				} else {
 					stopUpdateLoop();
 					alert('I see you filled it up.  Let me see what I can do...');
@@ -94,6 +108,8 @@
 					activePiece.piece = null;
 				}
 			}
+			if(!updateLoopRuns) return false;
+			updateLoop = setTimeout(update, updateDelay);
 		}
 		function draw(){
 			clear();
@@ -163,9 +179,17 @@
 			width:700px;
 			height:700px;
 		}
+		#rowsCleared {
+			color:white;
+			font-size:150%;
+			position:absolute;
+			top:20px;
+			left:400px;
+		}
 	</style>
 </head>
 <body>
 	<canvas id="canvas" width="700" height="700"></canvas>
+	<div id="rowsCleared"></div>
 </body>
 </html>

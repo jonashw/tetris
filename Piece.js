@@ -16,7 +16,7 @@ Piece.prototype.getVertices = function(oi){
 	});
 };
 Piece.prototype.getOtherVertices = function(oi){
-	console.log(oi);
+//	console.log(oi);
 	return this.getVertices(oi);
 };
 Piece.prototype.rotateCCW = function(){

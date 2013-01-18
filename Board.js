@@ -4,6 +4,8 @@ function Board(columnCount,rowCount){
 	this.activePiece = null;
 	this.rows = [];
 	this.initRows();
+	this.totalRowsCleared=0;
+	new Observable(this);
 }
 Board.prototype.initRows = function(){
 	for(var r=0; r < this.rowCount; r++){
@@ -56,10 +58,13 @@ Board.prototype.absorbPiece = function(piece){
 	rows.forEach(function(full,r){
 		if(full) fullRows.push(r);
 	});
-	if(!fullRows.length) return false;
+	var n = fullRows.length;
+	if(!n>0) return false;
 	fullRows.sort().reverse().forEach(function(r){
 		self.gravityFillEmptiedRow(r);
 	});
+	this.totalRowsCleared += n;
+	this.notifyObservers('clear',n);
 	return true;
 };
 Board.prototype.gravityFillEmptiedRow = function(r){
