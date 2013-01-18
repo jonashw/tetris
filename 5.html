@@ -18,10 +18,29 @@
 		var drawDelay = 20;
 		var updateRuns=false;
 
+		function clone(obj){
+			if(obj == null || typeof(obj) != 'object')
+				return obj;
+			var temp = new obj.constructor(); // changed
+			for(var key in obj){
+				temp[key] = clone(obj[key]);
+			}
+			return temp;
+		}
 
 		var board = new Board();
 		var activePiece = new ActivePiece(board);
 		var rowsClearedDisplay;
+		var shadow;
+		activePiece.on('new move',function(){
+			shadow = clone(activePiece.getPiece());
+			shadow.color = "#666666";
+			shadow.y += activePiece.getDropDelta();
+			//console.log(shadow);
+		});
+		activePiece.on('drop',function(){
+			shadow = null;
+		});
 		board.on('clear',function(n){
 			console.log('You cleared ' + n + ' row' + (n>1 ? 's' : '') + '!' + (n==4 ? ' Tetris!' : ''));
 			var total = board.totalRowsCleared;
@@ -88,12 +107,11 @@
 		}
 		function update(){
 			if(!activePiece.piece){
-				newpiece = Piece.generateDemoPieces(1,L)[0];
+				newpiece = Piece.generateDemoPieces(1)[0];
 				newpiece.x = 6;
 				newpiece.y = 20;
 				if(board.canPlacePiece(newpiece)){
-					activePiece.piece = newpiece;
-					stopUpdateLoop();
+					activePiece.setPiece(newpiece);
 					//stopUpdateLoop();
 				} else {
 					stopUpdateLoop();
@@ -113,9 +131,8 @@
 		}
 		function draw(){
 			clear();
-			if(activePiece.piece){
-				drawPiece(activePiece.piece);
-			}
+			if(shadow) drawPiece(shadow,false);
+			if(activePiece.piece) drawPiece(activePiece.piece,true);
 			drawBoard();
 		}
 
@@ -123,14 +140,14 @@
 			var c = ctx.canvas;
 			ctx.clearRect(0,0,c.width,c.height);
 		}
-		function drawPiece(piece){
+		function drawPiece(piece,highlightCenter){
 			ctx.save();
 			ctx.fillStyle=piece.color;
 			piece.getVertices().forEach(function(v,i){
 				var c = v[0];
 				var r = v[1];
 				var center = (c == piece.x && r == piece.y);
-				drawTile.call(null, c, r, center);
+				drawTile.call(null, c, r, center && highlightCenter);
 			});
 			ctx.restore();
 		}
