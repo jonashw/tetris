@@ -11,7 +11,8 @@
 	<script src="Board.js"></script>
 	<script src="BoardGraphic.js"></script>
 	<script>
-		var updateLoop = new AsyncLoop(update, 400);
+		var originalUpdateDelay = 400;
+		var updateLoop = new AsyncLoop(update, originalUpdateDelay);
 		var drawLoop = new AsyncLoop(draw, 20);
 
 		var board = new Board();
@@ -22,7 +23,7 @@
 		var nextPiece = getNextPiece();
 
 		function getNextPiece(){
-			var newpiece = Piece.generateDemoPieces(1)[0];
+			var newpiece = Piece.getRandomPiece();
 			newpiece.x = 4;
 			newpiece.y = 3;
 			return newpiece;
@@ -31,20 +32,20 @@
 		//driving functions (these continuously run in loops)
 		function update(){
 			if(!activePiece.piece){
-				if(board.canPlacePiece(nextPiece)){
-					var newpiece = clone(nextPiece);
-					newpiece.x = 6;
-					newpiece.y = 20;
+				var newpiece = clone(nextPiece);
+				newpiece.x = 6;
+				newpiece.y = 20;
+				if(board.canPlacePiece(newpiece)){
 					activePiece.setPiece(newpiece);
-				} else {
+				} else {//current game ends
 					updateLoop.stop();
-					alert('I see you filled it up.  Let me see what I can do...');
+					alert('I see you filled up the board.  Let me see what I can do...');
 					startOver();
 				}
-			} else {
+			} else {//there is already an active piece
 				if(activePiece.canMoveDown()){
 					activePiece.moveDown();
-				} else {
+				} else {//can't move! it has hit the bottom!
 					board.absorbPiece(activePiece.piece);
 					activePiece.piece = null;
 				}
@@ -80,7 +81,7 @@
 			console.log('You cleared ' + n + ' row' + (n>1 ? 's' : '') + '!' + (n==4 ? ' Tetris!' : ''));
 			var total = board.totalRowsCleared;
 			rowsClearedDisplay.innerHTML = total;
-			if(total % 2 == 0) updateLoop.delay *= 0.9;
+			if(total % 5 == 0) updateLoop.delay *= 0.9;
 		});
 
 		var boardGraphic;
@@ -97,6 +98,7 @@
 				switch(e.which){
 					case 80: //p
 						pauseResume();
+						e.preventDefault();
 						break;
 					case 32: //spacebar
 						activePiece.drop();
@@ -138,8 +140,11 @@
 		}
 		function startOver(){
 			updateLoop.stop();
-			activePiece.piece=null;
+			rowsClearedDisplay.innerHTML = board.totalRowsCleared = 0;
 			board.initRows();
+			updateLoop.delay = originalUpdateDelay;
+			activePiece.piece=null
+			shadow = null;
 			updateLoop.start();
 		}
 
