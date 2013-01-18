@@ -9,7 +9,7 @@
 	<script src="ActivePiece.js"></script>
 	<script src="Board.js"></script>
 	<script>
-		var ctx;
+		var mainctx;
 		var tileSize = 25;
 		var piece;
 		var updateLoop;
@@ -17,7 +17,15 @@
 		var updateDelay = 400;
 		var drawDelay = 20;
 		var updateRuns=false;
-
+		var shadow;
+		var nextPiece = getNextPiece();
+		
+		function getNextPiece(){
+			var newpiece = Piece.generateDemoPieces(1)[0];
+			newpiece.x = 6;
+			newpiece.y = 20;
+			return newpiece;
+		}
 		function clone(obj){
 			if(obj == null || typeof(obj) != 'object')
 				return obj;
@@ -31,7 +39,9 @@
 		var board = new Board();
 		var activePiece = new ActivePiece(board);
 		var rowsClearedDisplay;
-		var shadow;
+		activePiece.on('new',function(){
+			nextPiece = getNextPiece();
+		});
 		activePiece.on('new move rotate',function(){
 			shadow = clone(activePiece.getPiece());
 			shadow.color = "#666666";
@@ -52,7 +62,7 @@
 		window.onload = function(){
 			rowsClearedDisplay = document.getElementById("rowsCleared");
 			rowsClearedDisplay.innerHTML = board.totalRowsCleared;
-			ctx = document.getElementById("canvas").getContext('2d');
+			mainctx = document.getElementById("canvas").getContext('2d');
 			startUpdateLoop();
 			startDrawLoop();
 			$('body').on('keydown',function(e){
@@ -107,12 +117,8 @@
 		}
 		function update(){
 			if(!activePiece.piece){
-				newpiece = Piece.generateDemoPieces(1)[0];
-				newpiece.x = 6;
-				newpiece.y = 20;
-				if(board.canPlacePiece(newpiece)){
-					activePiece.setPiece(newpiece);
-					//stopUpdateLoop();
+				if(board.canPlacePiece(nextPiece)){
+					activePiece.setPiece(nextPiece);
 				} else {
 					stopUpdateLoop();
 					alert('I see you filled it up.  Let me see what I can do...');
@@ -130,29 +136,29 @@
 			updateLoop = setTimeout(update, updateDelay);
 		}
 		function draw(){
-			clear();
-			if(shadow) drawPiece(shadow,false);
-			if(activePiece.piece) drawPiece(activePiece.piece,true);
-			drawBoard();
+			clear(mainctx);
+			if(shadow) drawPiece(mainctx,shadow,false);
+			if(activePiece.piece) drawPiece(mainctx,activePiece.piece,true);
+			drawBoard(mainctx);
 		}
 
-		function clear(){
+		function clear(ctx){
 			var c = ctx.canvas;
 			ctx.clearRect(0,0,c.width,c.height);
 		}
-		function drawPiece(piece,highlightCenter){
+		function drawPiece(ctx,piece,highlightCenter){
 			ctx.save();
 			ctx.fillStyle=piece.color;
 			piece.getVertices().forEach(function(v,i){
 				var c = v[0];
 				var r = v[1];
 				var center = (c == piece.x && r == piece.y);
-				drawTile.call(null, c, r, center && highlightCenter);
+				drawTile.call(null, ctx, c, r, center && highlightCenter);
 			});
 			ctx.restore();
 		}
 
-		function drawBoard(){
+		function drawBoard(ctx){
 			var RC = board.rowCount;
 			for(var r=1; r<=RC; r++){
 				for(var c=1; c<=board.columnCount; c++){
@@ -160,28 +166,28 @@
 					if(color){
 						ctx.save();
 						ctx.fillStyle = color;
-						drawTile(c,r)
+						drawTile(ctx,c,r)
 						ctx.restore();
 					} else {
-						outlineTile(c,r);
+						outlineTile(ctx,c,r);
 					}
 				}
 			}
 		}
 
-		function drawTile(c,r,special){
+		function drawTile(ctx,c,r,special){
 			if(special){
 				ctx.save();
 				ctx.fillStyle="#ffffff";
 			}
 			ctx.fillRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
-			outlineTile(c,r);
+			outlineTile(ctx,c,r);
 			if(special){
 				ctx.restore();
 			}
 		}
 
-		function outlineTile(c,r){
+		function outlineTile(ctx,c,r){
 			ctx.save();
 			ctx.fillStyle="#999999";
 			ctx.strokeRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
