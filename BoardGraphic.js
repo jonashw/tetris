@@ -15,6 +15,13 @@ BoardGraphic.prototype.clear = function(){
 	var c = this.ctx.canvas;
 	this.ctx.clearRect(0,0,c.width,c.height);
 };
+BoardGraphic.prototype.dim = function(){
+	this.ctx.save();
+	var c = this.ctx.canvas;
+	this.ctx.fillStyle="rgba(0,0,0,0.5)";
+	this.ctx.fillRect(0,0,c.width,c.height);
+	this.ctx.restore();
+};
 BoardGraphic.prototype.draw = function(){
 	var ctx = this.ctx;
 	var board = this.board;

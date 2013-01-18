@@ -98,6 +98,9 @@
 			startDrawLoop();
 			$('body').on('keydown',function(e){
 				switch(e.which){
+					case 80: //p
+						pauseResume();
+						break;
 					case 32: //spacebar
 						activePiece.drop();
 						e.preventDefault();
@@ -146,6 +149,16 @@
 		function stopDrawLoop(){
 			drawLoopRuns=false;
 			clearTimeout(drawLoop);
+		}
+		function pauseResume(){
+			if(updateLoopRuns && drawLoopRuns){
+				stopUpdateLoop();
+				stopDrawLoop();
+				boardGraphic.dim();
+			} else {
+				startUpdateLoop();
+				startDrawLoop();
+			}
 		}
 		function startOver(){
 			stopUpdateloop();
