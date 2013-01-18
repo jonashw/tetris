@@ -5,19 +5,20 @@
 	<title>Tetris Dev</title>
 	<script src="/core/jQuery.js"></script>
 	<script src="Observable.js"></script>
+	<script src="AsyncLoop.js"></script>
 	<script src="Piece.js"></script>
 	<script src="ActivePiece.js"></script>
 	<script src="Board.js"></script>
 	<script src="BoardGraphic.js"></script>
 	<script>
-		var updateDelay = 400;
-		var drawDelay = 20;
+		var updateLoop = new AsyncLoop(update, 400);
+		var drawLoop = new AsyncLoop(draw, 20);
 
 		var board = new Board();
 		var previewboard = new Board(6,4);
 
 		var shadow;
-		var activePiece = new ActivePiece(board);
+		var activePiece = new ActivePiece(board,updateLoop);
 		var nextPiece = getNextPiece();
 
 		function getNextPiece(){
@@ -36,7 +37,7 @@
 					newpiece.y = 20;
 					activePiece.setPiece(newpiece);
 				} else {
-					stopUpdateLoop();
+					updateLoop.stop();
 					alert('I see you filled it up.  Let me see what I can do...');
 					startOver();
 				}
@@ -48,8 +49,6 @@
 					activePiece.piece = null;
 				}
 			}
-			if(!updateLoopRuns) return false;
-			updateLoop = setTimeout(update, updateDelay);
 		}
 
 		function draw(){
@@ -60,8 +59,6 @@
 			if(nextPiece) previewGraphic.drawPiece(nextPiece,false);
 			boardGraphic.draw();
 			previewGraphic.draw();
-			if(!drawLoopRuns) return false;
-			drawLoop = setTimeout(draw, drawDelay);
 		}
 
 		activePiece.on('new',function(){
@@ -83,7 +80,7 @@
 			console.log('You cleared ' + n + ' row' + (n>1 ? 's' : '') + '!' + (n==4 ? ' Tetris!' : ''));
 			var total = board.totalRowsCleared;
 			rowsClearedDisplay.innerHTML = total;
-			if(total % 2 == 0) updateDelay *= 0.9;
+			if(total % 2 == 0) updateLoop.delay *= 0.9;
 		});
 
 		var boardGraphic;
@@ -94,8 +91,8 @@
 			previewGraphic = new BoardGraphic(previewboard,document.getElementById("previewcanvas").getContext('2d'),10);
 			rowsClearedDisplay = document.getElementById("rowsCleared");
 			rowsClearedDisplay.innerHTML = board.totalRowsCleared;
-			startUpdateLoop();
-			startDrawLoop();
+			updateLoop.start();
+			drawLoop.start();
 			$('body').on('keydown',function(e){
 				switch(e.which){
 					case 80: //p
@@ -129,42 +126,21 @@
 			});
 		};
 
-		var updateLoop;
-		var drawLoop;
-		var updateLoopRuns=false;
-		var drawLoopRuns=false;
-		//looping constructs
-		function startUpdateLoop(){
-			updateLoopRuns=true;
-			update();
-		}
-		function stopUpdateLoop(){
-			updateLoopRuns=false;
-			clearTimeout(updateLoop);
-		}
-		function startDrawLoop(){
-			drawLoopRuns=true;
-			draw();
-		}
-		function stopDrawLoop(){
-			drawLoopRuns=false;
-			clearTimeout(drawLoop);
-		}
 		function pauseResume(){
-			if(updateLoopRuns && drawLoopRuns){
-				stopUpdateLoop();
-				stopDrawLoop();
+			if(updateLoop.isRunning() && drawLoop.isRunning()){
+				updateLoop.stop();
+				drawLoop.stop();
 				boardGraphic.dim();
 			} else {
-				startUpdateLoop();
-				startDrawLoop();
+				updateLoop.start();
+				drawLoop.start();
 			}
 		}
 		function startOver(){
-			stopUpdateloop();
+			updateLoop.stop();
 			activePiece.piece=null;
 			board.initRows();
-			startUpdateLoop();
+			updateLoop.start();
 		}
 
 		function clone(obj){

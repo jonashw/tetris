@@ -1,6 +1,6 @@
-function ActivePiece(board,piece){
+function ActivePiece(board,updateLoop,piece){
 	this.board = board;
-	this.piece = piece;//optional
+	this.updateLoop = updateLoop;
 	new Observable(this);
 }
 ActivePiece.prototype.setPiece = function(piece){
@@ -11,23 +11,23 @@ ActivePiece.prototype.getPiece = function(){
 	return this.piece;
 };
 ActivePiece.prototype.canDrop = function(){
-	return !!this.piece;
+	return !!this.piece && this.updateLoop.isRunning();
 };
 ActivePiece.prototype.canMoveLeft = function(){
 	var board = this.board;
-	return !!this.piece && this.piece.getVertices().every(function(vert){
+	return !!this.piece && this.updateLoop.isRunning() && this.piece.getVertices().every(function(vert){
 		return board.hasEmptyCellAt(vert[0]-1,vert[1]);
 	});
 };
 ActivePiece.prototype.canMoveRight = function(){
 	var board = this.board;
-	return !!this.piece && this.piece.getVertices().every(function(vert){
+	return !!this.piece && this.updateLoop.isRunning() && this.piece.getVertices().every(function(vert){
 		return board.hasEmptyCellAt(vert[0]+1,vert[1]);
 	});
 };
 ActivePiece.prototype.canMoveDown = function(){
 	var board = this.board;
-	return !!this.piece && this.piece.getVertices().every(function(vert){
+	return !!this.piece && this.updateLoop.isRunning() && this.piece.getVertices().every(function(vert){
 		return board.hasEmptyCellAt(vert[0],vert[1]-1);
 	});
 };
@@ -35,7 +35,7 @@ ActivePiece.prototype.canRotateCW = function(){
 	var board = this.board;
 	var verts = this.piece.getNextCWVertices();
 	//console.log(verts);
-	return !!this.piece && verts.every(function(vert){
+	return !!this.piece && this.updateLoop.isRunning() && verts.every(function(vert){
 		return board.hasEmptyCellAt(vert[0],vert[1]);
 	});
 };
@@ -43,7 +43,7 @@ ActivePiece.prototype.canRotateCCW = function(){
 	var board = this.board;
 	var verts = this.piece.getNextCCWVertices();
 	//console.log(verts);
-	return !!this.piece && verts.every(function(vert){
+	return !!this.piece && this.updateLoop.isRunning() && verts.every(function(vert){
 		return board.hasEmptyCellAt(vert[0],vert[1]);
 	});
 };
