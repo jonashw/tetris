@@ -8,49 +8,77 @@
 	<script src="Piece.js"></script>
 	<script src="ActivePiece.js"></script>
 	<script src="Board.js"></script>
+	<script src="BoardGraphic.js"></script>
 	<script>
-		var mainctx;
-		var tileSize = 25;
-		var piece;
-		var updateLoop;
-		var drawLoop;
 		var updateDelay = 400;
 		var drawDelay = 20;
-		var updateRuns=false;
-		var shadow;
-		var nextPiece = getNextPiece();
-		
-		function getNextPiece(){
-			var newpiece = Piece.generateDemoPieces(1)[0];
-			newpiece.x = 6;
-			newpiece.y = 20;
-			return newpiece;
-		}
-		function clone(obj){
-			if(obj == null || typeof(obj) != 'object')
-				return obj;
-			var temp = new obj.constructor(); // changed
-			for(var key in obj){
-				temp[key] = clone(obj[key]);
-			}
-			return temp;
-		}
 
 		var board = new Board();
+		var previewboard = new Board(6,4);
+
+		var shadow;
 		var activePiece = new ActivePiece(board);
-		var rowsClearedDisplay;
+		var nextPiece = getNextPiece();
+
+		function getNextPiece(){
+			var newpiece = Piece.generateDemoPieces(1)[0];
+			newpiece.x = 4;
+			newpiece.y = 3;
+			return newpiece;
+		}
+
+		//driving functions (these continuously run in loops)
+		function update(){
+			if(!activePiece.piece){
+				if(board.canPlacePiece(nextPiece)){
+					var newpiece = clone(nextPiece);
+					newpiece.x = 6;
+					newpiece.y = 20;
+					activePiece.setPiece(newpiece);
+				} else {
+					stopUpdateLoop();
+					alert('I see you filled it up.  Let me see what I can do...');
+					startOver();
+				}
+			} else {
+				if(activePiece.canMoveDown()){
+					activePiece.moveDown();
+				} else {
+					board.absorbPiece(activePiece.piece);
+					activePiece.piece = null;
+				}
+			}
+			if(!updateLoopRuns) return false;
+			updateLoop = setTimeout(update, updateDelay);
+		}
+
+		function draw(){
+			boardGraphic.clear();
+			previewGraphic.clear();
+			if(shadow) boardGraphic.drawPiece(shadow,false);
+			if(activePiece.piece) boardGraphic.drawPiece(activePiece.piece,true);
+			if(nextPiece) previewGraphic.drawPiece(nextPiece,false);
+			boardGraphic.draw();
+			previewGraphic.draw();
+			if(!drawLoopRuns) return false;
+			drawLoop = setTimeout(draw, drawDelay);
+		}
+
 		activePiece.on('new',function(){
 			nextPiece = getNextPiece();
 		});
+
 		activePiece.on('new move rotate',function(){
 			shadow = clone(activePiece.getPiece());
-			shadow.color = "#666666";
+			shadow.color = "#111111";
 			shadow.y += activePiece.getDropDelta();
-			//console.log(shadow);
 		});
+
 		activePiece.on('drop',function(){
 			shadow = null;
 		});
+
+		//UI
 		board.on('clear',function(n){
 			console.log('You cleared ' + n + ' row' + (n>1 ? 's' : '') + '!' + (n==4 ? ' Tetris!' : ''));
 			var total = board.totalRowsCleared;
@@ -58,11 +86,14 @@
 			if(total % 2 == 0) updateDelay *= 0.9;
 		});
 
-
+		var boardGraphic;
+		var previewGraphic;
+		var rowsClearedDisplay;
 		window.onload = function(){
+			boardGraphic = new BoardGraphic(board,document.getElementById("canvas").getContext('2d'),25);
+			previewGraphic = new BoardGraphic(previewboard,document.getElementById("previewcanvas").getContext('2d'),10);
 			rowsClearedDisplay = document.getElementById("rowsCleared");
 			rowsClearedDisplay.innerHTML = board.totalRowsCleared;
-			mainctx = document.getElementById("canvas").getContext('2d');
 			startUpdateLoop();
 			startDrawLoop();
 			$('body').on('keydown',function(e){
@@ -94,6 +125,12 @@
 				}
 			});
 		};
+
+		var updateLoop;
+		var drawLoop;
+		var updateLoopRuns=false;
+		var drawLoopRuns=false;
+		//looping constructs
 		function startUpdateLoop(){
 			updateLoopRuns=true;
 			update();
@@ -103,95 +140,28 @@
 			clearTimeout(updateLoop);
 		}
 		function startDrawLoop(){
-			drawLoop = setInterval(function(){
-				draw();
-			},drawDelay)
+			drawLoopRuns=true;
+			draw();
 		}
 		function stopDrawLoop(){
-			clearInterval(updateLoop);
+			drawLoopRuns=false;
+			clearTimeout(drawLoop);
 		}
 		function startOver(){
+			stopUpdateloop();
 			activePiece.piece=null;
 			board.initRows();
 			startUpdateLoop();
 		}
-		function update(){
-			if(!activePiece.piece){
-				if(board.canPlacePiece(nextPiece)){
-					activePiece.setPiece(nextPiece);
-				} else {
-					stopUpdateLoop();
-					alert('I see you filled it up.  Let me see what I can do...');
-					startOver();
-				}
-			} else {
-				if(activePiece.canMoveDown()){
-					activePiece.moveDown();
-				} else {
-					board.absorbPiece(activePiece.piece);
-					activePiece.piece = null;
-				}
-			}
-			if(!updateLoopRuns) return false;
-			updateLoop = setTimeout(update, updateDelay);
-		}
-		function draw(){
-			clear(mainctx);
-			if(shadow) drawPiece(mainctx,shadow,false);
-			if(activePiece.piece) drawPiece(mainctx,activePiece.piece,true);
-			drawBoard(mainctx);
-		}
 
-		function clear(ctx){
-			var c = ctx.canvas;
-			ctx.clearRect(0,0,c.width,c.height);
-		}
-		function drawPiece(ctx,piece,highlightCenter){
-			ctx.save();
-			ctx.fillStyle=piece.color;
-			piece.getVertices().forEach(function(v,i){
-				var c = v[0];
-				var r = v[1];
-				var center = (c == piece.x && r == piece.y);
-				drawTile.call(null, ctx, c, r, center && highlightCenter);
-			});
-			ctx.restore();
-		}
-
-		function drawBoard(ctx){
-			var RC = board.rowCount;
-			for(var r=1; r<=RC; r++){
-				for(var c=1; c<=board.columnCount; c++){
-					var color = board.getAt(c,r);
-					if(color){
-						ctx.save();
-						ctx.fillStyle = color;
-						drawTile(ctx,c,r)
-						ctx.restore();
-					} else {
-						outlineTile(ctx,c,r);
-					}
-				}
+		function clone(obj){
+			if(obj == null || typeof(obj) != 'object')
+				return obj;
+			var temp = new obj.constructor(); // changed
+			for(var key in obj){
+				temp[key] = clone(obj[key]);
 			}
-		}
-
-		function drawTile(ctx,c,r,special){
-			if(special){
-				ctx.save();
-				ctx.fillStyle="#ffffff";
-			}
-			ctx.fillRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
-			outlineTile(ctx,c,r);
-			if(special){
-				ctx.restore();
-			}
-		}
-
-		function outlineTile(ctx,c,r){
-			ctx.save();
-			ctx.fillStyle="#999999";
-			ctx.strokeRect(c*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
-			ctx.restore();
+			return temp;
 		}
 	</script>
 	<style>
@@ -199,8 +169,11 @@
 			background:#333;
 		}
 		canvas {
-			width:700px;
-			height:700px;
+			float:left;
+		}
+		#previewcanvas {
+			margin-left:1em;
+			background:black
 		}
 		#rowsCleared {
 			color:white;
@@ -212,7 +185,8 @@
 	</style>
 </head>
 <body>
-	<canvas id="canvas" width="700" height="700"></canvas>
+	<canvas id="canvas"></canvas>
+	<canvas id="previewcanvas"></canvas>
 	<div id="rowsCleared"></div>
 </body>
 </html>
