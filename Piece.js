@@ -1,4 +1,5 @@
 function Piece(orientations,color,x,y){
+	//The API for a Piece is its vertices, its x & y position, and its color.
 	this.o = orientations;
 	this.oi = 0;
 	this.color = color;
@@ -6,7 +7,6 @@ function Piece(orientations,color,x,y){
 	this.y = y;//optional
 }
 Piece.prototype.getVertices = function(oi){
-	//The API for a Piece is its vertices, its x & y position, and its color.
 	//The vertices are exposed as an array of points.  Each point is a 2-membered array: [x,y].
 	var oi = oi || this.oi;
 	if(oi < 0 || oi >= this.o.length) throw("Piece.getVertices(oi): oi outside range of 0 -> " + this.o.length + ".  (" + oi + ")");
@@ -14,10 +14,6 @@ Piece.prototype.getVertices = function(oi){
 	return this.o[oi].map(function(item,i){
 		return [item[0] + self.x, item[1] + self.y];
 	});
-};
-Piece.prototype.getOtherVertices = function(oi){
-//	console.log(oi);
-	return this.getVertices(oi);
 };
 Piece.prototype.rotateCCW = function(){
 	this.oi = this.getNextCCWOrientationIndex();
@@ -29,11 +25,11 @@ Piece.prototype.rotateCW = function(){
 }
 Piece.prototype.getNextCWVertices = function(){ //for previewing the would-be state after a CW rotation
 	var oi = this.getNextCWOrientationIndex();
-	return this.getOtherVertices(oi);
+	return this.getVertices(oi);
 };
 Piece.prototype.getNextCCWVertices = function(){ //for previewing the would-be state after a CCW rotation
 	var oi = this.getNextCCWOrientationIndex();
-	return this.getOtherVertices(oi);
+	return this.getVertices(oi);
 };
 Piece.prototype.getNextCWOrientationIndex = function(){
 	var dec = this.oi - 1;
