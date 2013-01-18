@@ -58,15 +58,14 @@ BoardGraphic.prototype.drawTile = function(c,r,special){
 	var ctx = this.ctx;
 	var board = this.board;
 	var tileSize = this.tileSize;
+	ctx.fillRect((c-1)*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
 	if(special){
 		ctx.save();
-		ctx.fillStyle="#ffffff";
-	}
-	ctx.fillRect((c-1)*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
-	this.outlineTile(c,r);
-	if(special){
+		ctx.fillStyle="rgba(255,255,255,0.5)";
+		ctx.fillRect((c-1)*tileSize,(board.rowCount - r)*tileSize,tileSize,tileSize);
 		ctx.restore();
 	}
+	this.outlineTile(c,r);
 };
 BoardGraphic.prototype.outlineTile = function(c,r){
 	var tileSize = this.tileSize;
