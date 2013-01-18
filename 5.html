@@ -32,7 +32,7 @@
 		var activePiece = new ActivePiece(board);
 		var rowsClearedDisplay;
 		var shadow;
-		activePiece.on('new move',function(){
+		activePiece.on('new move rotate',function(){
 			shadow = clone(activePiece.getPiece());
 			shadow.color = "#666666";
 			shadow.y += activePiece.getDropDelta();
