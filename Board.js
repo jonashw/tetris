@@ -7,6 +7,19 @@ function Board(columnCount,rowCount){
 	this.totalRowsCleared=0;
 	new Observable(this);
 }
+Board.prototype.getFullCells = function(){
+	return (!!this.fullCells) ? this.fullCells : this.fullCells = this.rows.reduce(function(acc,row,r,arr){
+		return acc.concat(
+			row.reduce(function(acc,color,c,arr){
+				acc.push({'r':r+1, 'c':c+1, 'color':color});
+				return acc;
+			},[])
+			.filter(function(cell){
+				return !!cell.color;
+			})
+		);
+	},[]);
+};
 Board.prototype.initRows = function(){
 	for(var r=0; r < this.rowCount; r++){
 		this.initRow(r);
@@ -16,6 +29,13 @@ Board.prototype.initRow = function(r){
 	this.rows[r] = [];
 	for(var c=0; c < this.columnCount; c++){
 		this.rows[r][c] = null;
+	}
+};
+Board.prototype.forEachCell = function(callback){
+	for(var r=0; r<this.rowCount; r++){
+		for(var c=0; c<this.columnCount; c++){
+			callback(r+1,c+1,this.rows[r][c]);
+		}
 	}
 };
 Board.prototype.getAt = function(c,r){
@@ -29,7 +49,7 @@ Board.prototype.setAt = function(c,r,value){
 };
 Board.prototype.hasEmptyCellAt = function(c,r){
 	//used by canmove queries
-	return this.hasCellAt(c,r) && this.getAt(c,r) == null;
+	return this.hasCellAt(c,r) && !this.getAt(c,r);
 };
 Board.prototype.hasCellAt = function(c,r){
 	return c > 0 && c <= this.columnCount && r > 0 && r <= this.rowCount;	
@@ -48,6 +68,8 @@ Board.prototype.absorbPiece = function(piece){
 	piece.getVertices().forEach(function(vert,i){
 		self.setAt(vert[0], vert[1], piece.color);
 	});
+	this.notifyObservers('piece_placed',piece);
+	this.fullCells = null;//clear cache
 	//now check for full rows
 	var rows = this.rows.map(function(row){
 		return row.every(function(cellValue){

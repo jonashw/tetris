@@ -1,5 +1,6 @@
-function Piece(orientations,color,x,y){
+function Piece(type,orientations,color,x,y){
 	//The API for a Piece is its vertices, its x & y position, and its color.
+	this.type = type;
 	this.o = orientations;
 	this.oi = 0;
 	this.color = color;
@@ -41,13 +42,13 @@ Piece.prototype.getNextCCWOrientationIndex = function(){
 };
 //Piece has some statics
 Piece.colors = {
-	red:"#ff0000",
-	orange:"#eedd00",
-	yellow:"#f3f300",
-	green:"#00ee00",
-	blue:"#3333ff",
-	teal:"#00f3f3",
-	purple:"#ee00ee"
+	red:"#990000",
+	orange:"#994400",
+	yellow:"#999900",
+	green:"#005500",
+	blue:"#111188",
+	teal:"#118888",
+	purple:"#660066"
 };
 Piece.getRandomColor = function(){
 	var c = [];
@@ -95,7 +96,7 @@ function T(color,x,y){
 		[[0,1],[0,0],[1,0],[-1,0]],
 		[[-1,0],[0,0],[0,1],[0,-1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'T', o, color, x, y);
 	this.rvi = 1;
 }
 
@@ -107,7 +108,7 @@ function J(color,x,y){
 		[[1,0],[0,0],[-1,0],[-1,1]],
 		[[0,1],[0,0],[0,-1],[-1,-1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'J', o, color, x, y);
 	this.rvi = 2;
 }
 
@@ -119,7 +120,7 @@ function L(color,x,y){
 		[[-1,0],[0,0],[1,0],[1,1]],
 		[[0,-1],[0,0],[0,1],[-1,1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'L', o, color, x, y);
 	this.rvi = 2;
 }
 
@@ -128,7 +129,7 @@ function O(color,x,y){
 	var o = [
 		[[0,0],[-1,0],[-1,-1],[0,-1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'O', o, color, x, y);
 }
 
 S.prototype = new Piece();
@@ -137,7 +138,7 @@ function S(color,x,y){
 		[[1,0],[0,0],[0,-1],[-1,-1]],
 		[[0,1],[0,0],[1,0],[1,-1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'S', o, color, x, y);
 }
 
 Z.prototype = new Piece();
@@ -146,7 +147,7 @@ function Z(color,x,y){
 		[[-1,0],[0,0],[0,-1],[1,-1]],
 		[[0,-1],[0,0],[1,0],[1,1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'Z', o, color, x, y);
 }
 
 I.prototype = new Piece();
@@ -155,5 +156,5 @@ function I(color,x,y){
 		[[-2,0],[-1,0],[0,0],[1,0]],
 		[[0,-2],[0,-1],[0,0],[0,1]]
 	];
-	Piece.call(this, o, color, x, y);
+	Piece.call(this, 'I', o, color, x, y);
 }

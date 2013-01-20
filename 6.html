@@ -13,7 +13,8 @@
 	<script>
 		var originalUpdateDelay = 1000;
 		var updateLoop = new AsyncLoop(update, originalUpdateDelay);
-		var drawLoop = new AsyncLoop(draw, 20);
+		var drawLoop = new AsyncLoop(draw, 500);
+		var drawCenterOfActivePiece = false;
 
 		var board = new Board();
 		var previewboard = new Board(6,4);
@@ -56,9 +57,9 @@
 			boardGraphic.clear();
 			previewGraphic.clear();
 			if(shadow) boardGraphic.drawPiece(shadow,false);
-			if(activePiece.piece) boardGraphic.drawPiece(activePiece.piece,true);
-			if(nextPiece) previewGraphic.drawPiece(nextPiece,false);
-			boardGraphic.draw();
+			if(activePiece.piece) boardGraphic.drawPieceWithGradient(activePiece.piece,drawCenterOfActivePiece);
+			if(nextPiece) previewGraphic.drawPieceWithGradient(nextPiece,false);
+			boardGraphic.draw(true,true);
 			previewGraphic.draw();
 		}
 
@@ -88,7 +89,7 @@
 		var previewGraphic;
 		var rowsClearedDisplay;
 		window.onload = function(){
-			boardGraphic = new BoardGraphic(board,document.getElementById("canvas").getContext('2d'),25);
+			boardGraphic = new BoardGraphic(board,document.getElementById("canvas").getContext('2d'),20);
 			previewGraphic = new BoardGraphic(previewboard,document.getElementById("previewcanvas").getContext('2d'),10);
 			rowsClearedDisplay = document.getElementById("rowsCleared");
 			rowsClearedDisplay.innerHTML = board.totalRowsCleared;
@@ -156,6 +157,40 @@
 				temp[key] = clone(obj[key]);
 			}
 			return temp;
+		}
+		//color funcs
+		function darken(hex,n){
+			var rgb = hexToRgb(hex);
+			var darker = {};
+		   	for(var k in rgb){
+				var temp = rgb[k] - n;
+				darker[k] = (temp > 255 ? 255 : (temp < 0 ? 0 : temp));
+			}
+			return rgbToHex(darker);
+		}
+		function lighten(hex,n){
+			var rgb = hexToRgb(hex);
+			var lighter = {};
+		   	for(var k in rgb){
+				var temp = rgb[k] + n;
+				lighter[k] = (temp > 255 ? 255 : (temp < 0 ? 0 : temp));
+			}
+			return rgbToHex(lighter);
+		}
+		function componentToHex(c) {
+			var hex = c.toString(16);
+			return hex.length == 1 ? "0" + hex : hex;
+		}
+		function rgbToHex(rgb) {
+			return "#" + componentToHex(rgb.r) + componentToHex(rgb.g) + componentToHex(rgb.b);
+		}
+		function hexToRgb(hex) {
+			var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+			return result ? {
+				r: parseInt(result[1], 16),
+				g: parseInt(result[2], 16),
+				b: parseInt(result[3], 16)
+			} : null;
 		}
 	</script>
 	<style>
