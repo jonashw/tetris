@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Tetris Dev</title>
-	<script src="/core/jQuery.js"></script>
+	<script src="jQuery.js"></script>
 	<script src="Observable.js"></script>
 	<script src="AsyncLoop.js"></script>
 	<script src="Piece.js"></script>
@@ -34,7 +34,7 @@
 			if(!activePiece.piece){
 				var newpiece = clone(nextPiece);
 				newpiece.x = 6;
-				newpiece.y = 20;
+				newpiece.y = 19;
 				if(board.canPlacePiece(newpiece)){
 					activePiece.setPiece(newpiece);
 				} else {//current game ends
